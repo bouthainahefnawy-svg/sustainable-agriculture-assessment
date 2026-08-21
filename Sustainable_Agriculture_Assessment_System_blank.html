@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainable Agriculture Assessment System - New Lands</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .gradient-card {
+            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col lg:flex-row antialiased">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full lg:w-72 bg-slate-950 text-white flex-shrink-0 flex flex-col justify-between p-5 border-r border-slate-800 shadow-2xl z-20">
+        <div>
+            <!-- Brand & Subtitle -->
+            <div class="flex items-center gap-3.5 pb-6 border-b border-slate-800/80">
+                <div class="bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 w-11 h-11 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-emerald-500/20">
+                    🌱
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm tracking-tight text-slate-100 leading-snug">Sustainable Agriculture</h1>
+                    <p class="text-xs text-emerald-400 font-bold">Assessment System</p>
+                    <span class="inline-block mt-1 bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        New Lands
+                    </span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="mt-6 space-y-1.5">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-emerald-600 text-white shadow-lg shadow-emerald-900/40">
+                    <i class="fa-solid fa-house text-sm w-5 text-center"></i> Home
+                </button>
+                <button onclick="switchTab('assessment')" id="nav-assessment" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 hover:text-slate-100">
+                    <i class="fa-solid fa-sliders text-sm w-5 text-center"></i> Assessment
+                </button>
+                <button onclick="switchTab('results')" id="nav-results" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 hover:text-slate-100">
+                    <i class="fa-solid fa-chart-pie text-sm w-5 text-center"></i> Results & Analytics
+                </button>
+                <button onclick="switchTab('overall')" id="nav-overall" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 hover:text-slate-100">
+                    <i class="fa-solid fa-earth-americas text-sm w-5 text-center"></i> Overall Sustainability
+                </button>
+            </nav>
+        </div>
+
+        <!-- Utility Preset & Reset Controls -->
+        <div class="border-t border-slate-800/80 pt-5 space-y-2 mt-6">
+            <div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold px-1 mb-1">Preset Scenarios</div>
+            <button onclick="loadScenario('optimal')" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-between border border-slate-800">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-400 text-[10px]"></i> Optimal Land</span>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+            </button>
+            <button onclick="loadScenario('saline')" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 py-2 px-3 rounded-xl text-xs font-semibold transition flex items-center justify-between border border-slate-800">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-400 text-[10px]"></i> Saline Soil Plot</span>
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+            </button>
+            <button onclick="resetAssessmentForm()" class="w-full bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 border border-rose-900/40 py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mt-2">
+                <i class="fa-solid fa-rotate-left text-xs"></i> Reset Assessment
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-5 md:p-8 overflow-y-auto custom-scrollbar">
+        
+        <!-- Top App Bar / Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 mb-6 border-b border-slate-200">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-semibold text-emerald-700 mb-0.5">
+                    <i class="fa-solid fa-location-dot"></i> Land Suitability & Environmental Assessment
+                </div>
+                <h2 id="pageTitleDisplay" class="text-2xl font-black text-slate-900 tracking-tight">Sustainable Agriculture Assessment System</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-print text-slate-500"></i> Print Report
+                </button>
+                <button onclick="exportCSVResults()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-md shadow-emerald-700/20">
+                    <i class="fa-solid fa-download"></i> Export Data (CSV)
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= PAGE 1: HOME ================= -->
+        <section id="page-home" class="space-y-8">
+            <!-- Hero Dashboard Banner -->
+            <div class="gradient-card rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-white font-black select-none pointer-events-none">
+                    AGRI
+                </div>
+                <div class="relative z-10 max-w-3xl">
+                    <span class="bg-emerald-400/20 text-emerald-200 text-xs font-bold px-3 py-1 rounded-full border border-emerald-400/30">
+                        Multi-Criteria Decision Analysis (MCDA)
+                    </span>
+                    <h2 class="text-3xl md:text-4xl font-black mt-3 tracking-tight">Sustainable Agriculture Assessment System</h2>
+                    <p class="text-emerald-300 text-lg font-bold mt-1">New Lands</p>
+                    <p class="text-emerald-100/90 mt-3 text-xs md:text-sm leading-relaxed">
+                        A system for evaluating agricultural sustainability in newly reclaimed lands using integrated soil, water, climate, environmental, and infrastructure indicators.
+                    </p>
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                        <button onclick="switchTab('assessment')" class="bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs md:text-sm transition inline-flex items-center gap-2 shadow-lg shadow-emerald-950/40">
+                            Start Assessment <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button onclick="switchTab('results')" class="bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 rounded-xl text-xs md:text-sm border border-white/20 transition">
+                            View Results Summary
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Five Core Dimensions Section -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-6 bg-emerald-600 rounded-full inline-block"></span>
+                        Five Sustainability Dimensions
+                    </h3>
+                    <span class="text-xs text-slate-500 font-semibold">Standard Model Sequence</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- 1. Soil -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xl">🌱</div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Soil</h4>
+                            <p class="text-xs text-slate-500 font-medium mt-1">ECe, pH, CEC, soil depth, etc.</p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Water -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center font-bold text-xl">💧</div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Water</h4>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Water availability, water quality</p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Climate -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xl">☀️</div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Climate</h4>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Rainfall, ET0, temperature, wind speed</p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Environmental Protection -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold text-xl">🛡️</div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Environmental Protection</h4>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Erosion risk, flooding, NDVI</p>
+                        </div>
+                    </div>
+
+                    <!-- 5. Infrastructure -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-xl">🏗️</div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Infrastructure</h4>
+                            <p class="text-xs text-slate-500 font-medium mt-1">Proximity to roads, markets, services, energy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: ASSESSMENT ================= -->
+        <section id="page-assessment" class="hidden space-y-8">
+            <!-- Assessment Form Wizard Steps Indicator -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-extrabold text-slate-800">Form Progress:</span>
+                <div class="flex items-center gap-2 flex-1 max-w-xl mx-2">
+                    <div class="w-full bg-slate-100 rounded-full h-2">
+                        <div id="formProgressBar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <span class="font-bold text-emerald-700">23 / 23 Indicators Complete</span>
+            </div>
+
+            <form id="assessmentForm" onsubmit="event.preventDefault(); calculateAndNavigate();" class="space-y-8">
+                
+                <!-- 1. SOIL DIMENSION -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-extrabold text-emerald-800 flex items-center gap-2">
+                            🌱 1. Soil
+                        </h3>
+                        <span class="text-[11px] font-bold text-slate-400">10 Indicators</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">ECe (dS/m)</label>
+                            <input type="number" id="input_ece" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Soil Depth (cm)</label>
+                            <input type="number" id="input_soildepth" step="1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Texture</label>
+                            <select id="input_texture" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select texture</option>
+                                <option>Clay</option>
+                                <option>Silty clay</option>
+                                <option>Sandy clay</option>
+                                <option>Clay loam</option>
+                                <option>Silty clay loam</option>
+                                <option>Sandy clay loam</option>
+                                <option>Loam</option>
+                                <option>Silt loam</option>
+                                <option>Silt</option>
+                                <option>Sandy loam</option>
+                                <option>Loamy sand</option>
+                                <option>Sand</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">CaCO₃ (%)</label>
+                            <input type="number" id="input_caco3" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">CEC (meq/100g)</label>
+                            <input type="number" id="input_cec" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Slope (%)</label>
+                            <input type="number" id="input_slope" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">pH</label>
+                            <input type="number" id="input_ph" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Surface Fragments (%)</label>
+                            <input type="number" id="input_surfacefragments" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Hardpan Layers (cm)</label>
+                            <input type="number" id="input_hardpanlayers" step="1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Organic Matter (%)</label>
+                            <input type="number" id="input_om" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. WATER DIMENSION -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-extrabold text-emerald-800 flex items-center gap-2">
+                            💧 2. Water
+                        </h3>
+                        <span class="text-[11px] font-bold text-slate-400">2 Indicators</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Water Availability</label>
+                            <select id="input_wateravailability" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select water availability</option>
+                                <option>Surface water available</option>
+                                <option>Productive groundwater aquifer</option>
+                                <option>Moderate groundwater availability</option>
+                                <option>Limited groundwater availability</option>
+                                <option>No reliable water source</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Water Quality (ECw - dS/m)</label>
+                            <input type="number" id="input_waterquality" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. CLIMATE DIMENSION -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-extrabold text-emerald-800 flex items-center gap-2">
+                            ☀️ 3. Climate
+                        </h3>
+                        <span class="text-[11px] font-bold text-slate-400">4 Indicators</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Rainfall (mm)</label>
+                            <input type="number" id="input_rainfall" step="1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Evapotranspiration (mm)</label>
+                            <input type="number" id="input_evapotranspiration" step="1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Wind Speed (m/s)</label>
+                            <input type="number" id="input_windspeed" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Temperature (°C)</label>
+                            <input type="number" id="input_temperature" step="0.1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. ENVIRONMENTAL PROTECTION DIMENSION -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-extrabold text-emerald-800 flex items-center gap-2">
+                            🛡️ 4. Environmental Protection
+                        </h3>
+                        <span class="text-[11px] font-bold text-slate-400">3 Indicators</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Erosion Risk (%)</label>
+                            <input type="number" id="input_erosion" step="1" min="0" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Flooding Hazard</label>
+                            <select id="input_flooding" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select flooding hazard</option>
+                                <option>No Flooding</option>
+                                <option>Slight Flooding</option>
+                                <option>Moderate Flooding</option>
+                                <option>Severe Flooding</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">NDVI Index</label>
+                            <input type="number" id="input_ndvi" step="0.05" min="0" max="1" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. INFRASTRUCTURE DIMENSION -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-base font-extrabold text-emerald-800 flex items-center gap-2">
+                            🏗️ 5. Infrastructure
+                        </h3>
+                        <span class="text-[11px] font-bold text-slate-400">4 Indicators</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Proximity to Roads</label>
+                            <select id="input_proximitytoroads" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select road accessibility</option>
+                                <option>Good asphalt road</option>
+                                <option>Acceptable dirt road</option>
+                                <option>Not suitable</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Proximity to Markets</label>
+                            <select id="input_proximitytomarkets" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select market accessibility</option>
+                                <option>Less than 15 km</option>
+                                <option>15–30 km</option>
+                                <option>More than 30 km</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Proximity to Service Centers</label>
+                            <select id="input_proximitytoservicecenters" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select service availability</option>
+                                <option>Basic services available (school + health center) or more</option>
+                                <option>Only one service available (school or health center)</option>
+                                <option>No services available</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1.5">Energy Availability</label>
+                            <select id="input_energyavailability" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 font-semibold focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"><option value="" selected disabled>Select energy availability</option>
+                                <option>National electricity grid</option>
+                                <option>Solar energy available</option>
+                                <option>Diesel generator</option>
+                                <option>No electricity</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Submit Button -->
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-4 px-6 rounded-xl text-sm md:text-base transition shadow-lg shadow-emerald-700/20 flex items-center justify-center gap-2">
+                    🌱 Calculate Sustainability <i class="fa-solid fa-calculator"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- ================= PAGE 3: RESULTS ================= -->
+        <section id="page-results" class="hidden space-y-8">
+            <!-- Results Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3.5" id="resultsCards">
+                <!-- Populated Dynamically -->
+            </div>
+
+            <!-- Charts Panel -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-emerald-600"></i> Dimension Index Comparison
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-emerald-600"></i> Sustainability Profile (Radar)
+                    </h3>
+                    <div class="relative h-64">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Summary Table -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-emerald-600"></i> 📋 Results Summary Table
+                    </h3>
+                    <button onclick="exportCSVResults()" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-download"></i> Download CSV
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 font-extrabold">
+                                <th class="p-3">Dimension</th>
+                                <th class="p-3">Index Score</th>
+                                <th class="p-3">Rating Class</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody" class="divide-y divide-slate-100 font-semibold text-slate-700">
+                            <!-- Populated Dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: OVERALL SUSTAINABILITY ================= -->
+        <section id="page-overall" class="hidden space-y-8">
+            <!-- Overall Score Banner -->
+            <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-green-100 border-2 border-emerald-200 rounded-3xl p-8 text-center space-y-3 shadow-md">
+                <p class="text-emerald-800 text-xs font-black uppercase tracking-wider">OVERALL SUSTAINABILITY INDEX</p>
+                <div id="overallScoreDisplay" class="text-6xl md:text-7xl font-black text-emerald-950 tracking-tight">—</div>
+                <div id="overallRatingBadge" class="inline-block px-5 py-2 rounded-full text-sm font-extrabold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
+                    Awaiting assessment
+                </div>
+            </div>
+
+            <!-- Priority Areas & Field Action Guidance -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                    🎯 Priority Focus Areas & Field Action Guidance
+                </h3>
+                
+                <div id="priorityAlert" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold leading-relaxed">
+                    Lowest-scoring dimension: <strong id="weakestDim">—</strong>. Prioritize intervention here.
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-extrabold text-slate-800 text-xs">💡 Recommended Focus Areas:</h4>
+                    <ul id="recommendationsList" class="space-y-2.5 text-xs text-slate-700 font-medium">
+                        <!-- Populated Dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Application & Calculation Engine -->
+    <script>
+        const CATEGORY_SCORES = {
+            "texture": {
+                "Clay": 50, "Silty clay": 60, "Sandy clay": 70, "Clay loam": 75,
+                "Silty clay loam": 80, "Sandy clay loam": 85, "Loam": 90, "Silt loam": 95,
+                "Silt": 85, "Sandy loam": 90, "Loamy sand": 85, "Sand": 60
+            },
+            "flooding": {
+                "No Flooding": 100, "Slight Flooding": 90, "Moderate Flooding": 80, "Severe Flooding": 50
+            },
+            "proximitytoroads": {
+                "Good asphalt road": 100, "Acceptable dirt road": 90, "Not suitable": 80
+            },
+            "proximitytomarkets": {
+                "Less than 15 km": 100, "15–30 km": 90, "More than 30 km": 80
+            },
+            "proximitytoservicecenters": {
+                "Basic services available (school + health center) or more": 100,
+                "Only one service available (school or health center)": 90,
+                "No services available": 80
+            },
+            "energyavailability": {
+                "National electricity grid": 100, "Solar energy available": 95,
+                "Diesel generator": 90, "No electricity": 80
+            },
+            "wateravailability": {
+                "Surface water available": 100, "Productive groundwater aquifer": 95,
+                "Moderate groundwater availability": 90, "Limited groundwater availability": 85,
+                "No reliable water source": 50
+            }
+        };
+
+        const ACTION_GUIDANCE = {
+            "ece": "Review salinity management, drainage, and irrigation-water quality.",
+            "soildepth": "Consider crops suited to effective soil depth and investigate soil-profile constraints.",
+            "texture": "Select crops and irrigation practices appropriate to soil texture.",
+            "caco3": "Consider calcium-carbonate constraints when selecting crops and nutrient-management practices.",
+            "cec": "Use soil-test-based nutrient management and organic amendments where appropriate.",
+            "slope": "Use erosion-control practices such as contouring or terracing.",
+            "ph": "Use soil testing and crop-specific pH management before applying amendments.",
+            "surfacefragments": "Account for surface stones in cultivation, planting, and machinery planning.",
+            "hardpanlayers": "Investigate compaction or restrictive layers and consider soil interventions.",
+            "om": "Increase organic-matter inputs through compost, residues, or crop rotations.",
+            "erosion": "Prioritize erosion-control measures and maintain protective ground cover.",
+            "flooding": "Assess drainage and flood-risk management before selecting crops or infrastructure.",
+            "ndvi": "Investigate vegetation gaps and crop stress using imagery and field observations.",
+            "rainfall": "Select crops compatible with local rainfall patterns and water availability.",
+            "evapotranspiration": "Align irrigation scheduling with crop water demand and local climatic conditions.",
+            "windspeed": "Consider windbreaks and crop choices suited to local wind exposure.",
+            "temperature": "Select crop varieties suited to the local temperature range.",
+            "proximitytoroads": "Improve farm access and transport planning where road conditions constrain operations.",
+            "proximitytomarkets": "Evaluate logistics, storage, and market-linkage options.",
+            "proximitytoservicecenters": "Plan access to health, extension, and essential agricultural services.",
+            "energyavailability": "Evaluate reliable and sustainable energy options for farm operations.",
+            "wateravailability": "Prioritize reliable water sources and efficient water-management practices.",
+            "waterquality": "Test irrigation water regularly and manage salinity or water-quality constraints."
+        };
+
+        let barChartInst = null;
+        let radarChartInst = null;
+
+        function switchTab(tab) {
+            ['home', 'assessment', 'results', 'overall'].forEach(t => {
+                document.getElementById('page-' + t).classList.add('hidden');
+                const btn = document.getElementById('nav-' + t);
+                btn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-900 hover:text-slate-100";
+            });
+            document.getElementById('page-' + tab).classList.remove('hidden');
+            const activeBtn = document.getElementById('nav-' + tab);
+            activeBtn.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition bg-emerald-600 text-white shadow-lg shadow-emerald-900/40";
+
+            // Update Header Display
+            const titles = {
+                'home': 'Sustainable Agriculture Assessment System',
+                'assessment': 'Sustainability Assessment',
+                'results': 'Results & Analytics',
+                'overall': 'Overall Sustainability Index'
+            };
+            document.getElementById('pageTitleDisplay').innerText = titles[tab] || 'Sustainable Agriculture';
+
+            if (tab === 'results' || tab === 'overall' || tab === 'home') {
+                calculateScores();
+            }
+        }
+
+        function calculateRating(index) {
+            if (index < 0.10) return "Very Low";
+            if (index < 0.30) return "Low";
+            if (index < 0.60) return "Moderate";
+            return "High";
+        }
+
+        function calculateAndNavigate() {
+            const requiredIds = [
+                'input_ece','input_soildepth','input_texture','input_caco3','input_cec',
+                'input_slope','input_ph','input_surfacefragments','input_hardpanlayers','input_om',
+                'input_wateravailability','input_waterquality','input_rainfall','input_evapotranspiration',
+                'input_windspeed','input_temperature','input_erosion','input_flooding','input_ndvi',
+                'input_proximitytoroads','input_proximitytomarkets','input_proximitytoservicecenters',
+                'input_energyavailability'
+            ];
+            const missing = requiredIds.some(id => {
+                const el = document.getElementById(id);
+                return el.value === '' || (el.type === 'number' && !Number.isFinite(parseFloat(el.value)));
+            });
+            if (missing) {
+                alert('Please complete all assessment indicators before calculating the sustainability index.');
+                return;
+            }
+            calculateScores();
+            switchTab('results');
+        }
+
+        function scoreNumeric(value, ranges) {
+            for (let r of ranges) {
+                if (value >= r.min && value <= r.max) return r.score;
+            }
+            return 80;
+        }
+
+        function calculateScores() {
+            // Read Numeric Inputs
+            const val_ece = parseFloat(document.getElementById('input_ece').value) || 0;
+            const val_soildepth = parseFloat(document.getElementById('input_soildepth').value) || 0;
+            const val_caco3 = parseFloat(document.getElementById('input_caco3').value) || 0;
+            const val_cec = parseFloat(document.getElementById('input_cec').value) || 0;
+            const val_slope = parseFloat(document.getElementById('input_slope').value) || 0;
+            const val_ph = parseFloat(document.getElementById('input_ph').value) || 0;
+            const val_surfacefragments = parseFloat(document.getElementById('input_surfacefragments').value) || 0;
+            const val_hardpanlayers = parseFloat(document.getElementById('input_hardpanlayers').value) || 0;
+            const val_om = parseFloat(document.getElementById('input_om').value) || 0;
+
+            const val_waterquality = parseFloat(document.getElementById('input_waterquality').value) || 0;
+            const val_rainfall = parseFloat(document.getElementById('input_rainfall').value) || 0;
+            const val_evapotranspiration = parseFloat(document.getElementById('input_evapotranspiration').value) || 0;
+            const val_windspeed = parseFloat(document.getElementById('input_windspeed').value) || 0;
+            const val_temperature = parseFloat(document.getElementById('input_temperature').value) || 0;
+            const val_erosion = parseFloat(document.getElementById('input_erosion').value) || 0;
+            const val_ndvi = parseFloat(document.getElementById('input_ndvi').value) || 0;
+
+            // Read Category Inputs
+            const sel_texture = document.getElementById('input_texture').value;
+            const sel_wateravailability = document.getElementById('input_wateravailability').value;
+            const sel_flooding = document.getElementById('input_flooding').value;
+            const sel_roads = document.getElementById('input_proximitytoroads').value;
+            const sel_markets = document.getElementById('input_proximitytomarkets').value;
+            const sel_services = document.getElementById('input_proximitytoservicecenters').value;
+            const sel_energy = document.getElementById('input_energyavailability').value;
+
+            // Indicator Scores
+            const scores = {
+                // Soil
+                ece: scoreNumeric(val_ece, [{min:0, max:4, score:100}, {min:4, max:8, score:95}, {min:8, max:16, score:90}, {min:16, max:32, score:85}, {min:32, max:999, score:80}]),
+                soildepth: scoreNumeric(val_soildepth, [{min:0, max:25, score:50}, {min:25, max:60, score:70}, {min:60, max:90, score:80}, {min:90, max:120, score:90}, {min:120, max:999, score:100}]),
+                texture: CATEGORY_SCORES.texture[sel_texture] || 85,
+                caco3: scoreNumeric(val_caco3, [{min:0, max:2, score:95}, {min:2, max:10, score:90}, {min:10, max:25, score:85}, {min:25, max:999, score:80}]),
+                cec: scoreNumeric(val_cec, [{min:0, max:5, score:50}, {min:5, max:10, score:90}, {min:10, max:20, score:95}, {min:20, max:999, score:100}]),
+                slope: scoreNumeric(val_slope, [{min:0, max:2, score:100}, {min:2, max:5, score:90}, {min:5, max:10, score:80}, {min:10, max:999, score:50}]),
+                ph: scoreNumeric(val_ph, [{min:0, max:6.5, score:80}, {min:6.5, max:7.5, score:100}, {min:7.5, max:8.5, score:95}, {min:8.5, max:999, score:80}]),
+                surfacefragments: scoreNumeric(val_surfacefragments, [{min:0, max:5, score:100}, {min:5, max:15, score:90}, {min:15, max:30, score:80}, {min:30, max:999, score:50}]),
+                hardpanlayers: scoreNumeric(val_hardpanlayers, [{min:0, max:50, score:50}, {min:50, max:100, score:80}, {min:100, max:150, score:90}, {min:150, max:999, score:100}]),
+                om: scoreNumeric(val_om, [{min:0, max:0.5, score:50}, {min:0.5, max:1, score:80}, {min:1, max:2, score:95}, {min:2, max:999, score:100}]),
+
+                // Water
+                wateravailability: CATEGORY_SCORES.wateravailability[sel_wateravailability] || 90,
+                waterquality: scoreNumeric(val_waterquality, [{min:0, max:1, score:100}, {min:1, max:3, score:80}, {min:3, max:5, score:60}, {min:5, max:999, score:40}]),
+
+                // Climate
+                rainfall: scoreNumeric(val_rainfall, [{min:0, max:100, score:50}, {min:100, max:200, score:85}, {min:200, max:400, score:95}, {min:400, max:999, score:100}]),
+                evapotranspiration: scoreNumeric(val_evapotranspiration, [{min:0, max:150, score:100}, {min:150, max:250, score:85}, {min:250, max:999, score:50}]),
+                windspeed: scoreNumeric(val_windspeed, [{min:0, max:2, score:100}, {min:2, max:5, score:95}, {min:5, max:8, score:80}, {min:8, max:999, score:50}]),
+                temperature: scoreNumeric(val_temperature, [{min:0, max:15, score:80}, {min:15, max:25, score:95}, {min:25, max:35, score:90}, {min:35, max:999, score:70}]),
+
+                // Protection
+                erosion: scoreNumeric(val_erosion, [{min:0, max:5, score:100}, {min:5, max:15, score:90}, {min:15, max:30, score:80}, {min:30, max:999, score:50}]),
+                flooding: CATEGORY_SCORES.flooding[sel_flooding] || 100,
+                ndvi: scoreNumeric(val_ndvi, [{min:0, max:0.2, score:50}, {min:0.2, max:0.4, score:90}, {min:0.4, max:0.6, score:95}, {min:0.6, max:1, score:100}]),
+
+                // Infrastructure
+                proximitytoroads: CATEGORY_SCORES.proximitytoroads[sel_roads] || 100,
+                proximitytomarkets: CATEGORY_SCORES.proximitytomarkets[sel_markets] || 90,
+                proximitytoservicecenters: CATEGORY_SCORES.proximitytoservicecenters[sel_services] || 80,
+                energyavailability: CATEGORY_SCORES.energyavailability[sel_energy] || 95
+            };
+
+            // Multiplicative Index Calculations
+            const soilKeys = ['ece', 'soildepth', 'texture', 'caco3', 'cec', 'slope', 'ph', 'surfacefragments', 'hardpanlayers', 'om'];
+            const waterKeys = ['wateravailability', 'waterquality'];
+            const climateKeys = ['rainfall', 'evapotranspiration', 'windspeed', 'temperature'];
+            const protectionKeys = ['erosion', 'flooding', 'ndvi'];
+            const infraKeys = ['proximitytoroads', 'proximitytomarkets', 'proximitytoservicecenters', 'energyavailability'];
+
+            const prod = (keys) => keys.reduce((acc, k) => acc * (scores[k] / 100.0), 1.0);
+
+            const indices = {
+                "Soil": prod(soilKeys),
+                "Water": prod(waterKeys),
+                "Climate": prod(climateKeys),
+                "Environmental Protection": prod(protectionKeys),
+                "Infrastructure": prod(infraKeys)
+            };
+
+            const overall = Object.values(indices).reduce((a, b) => a * b, 1.0);
+
+            // Populate Result Metric Cards
+            const cardsContainer = document.getElementById('resultsCards');
+            cardsContainer.innerHTML = '';
+            Object.entries(indices).forEach(([name, val]) => {
+                cardsContainer.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-1 text-center">
+                        <span class="text-[11px] text-slate-400 font-extrabold uppercase">${name}</span>
+                        <div class="text-xl font-black text-slate-800">${val.toFixed(4)}</div>
+                        <span class="inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">${calculateRating(val)}</span>
+                    </div>
+                `;
+            });
+
+            // Populate Summary Table
+            const tbody = document.getElementById('summaryTableBody');
+            tbody.innerHTML = '';
+            Object.entries(indices).forEach(([name, val]) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-bold text-slate-800">${name}</td>
+                        <td class="p-3 font-bold">${val.toFixed(4)}</td>
+                        <td class="p-3"><span class="px-2.5 py-1 rounded-md bg-slate-100 font-bold text-slate-700">${calculateRating(val)}</span></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML += `
+                <tr class="font-extrabold bg-emerald-50 text-emerald-950 border-t-2 border-emerald-200">
+                    <td class="p-3">Overall Sustainability Index</td>
+                    <td class="p-3">${overall.toFixed(4)}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-md bg-emerald-200 text-emerald-900">${calculateRating(overall)}</span></td>
+                </tr>
+            `;
+
+            // Overall Page Display
+            document.getElementById('overallScoreDisplay').innerText = overall.toFixed(4);
+            document.getElementById('overallRatingBadge').innerText = calculateRating(overall) + " Sustainability";
+
+            // Find weakest dimension
+            const sorted = Object.entries(indices).sort((a, b) => a[1] - b[1]);
+            document.getElementById('weakestDim').innerText = `${sorted[0][0]} (${sorted[0][1].toFixed(4)})`;
+
+            // Recommendations List
+            const recList = document.getElementById('recommendationsList');
+            recList.innerHTML = '';
+            const weakList = Object.entries(scores).filter(([k, v]) => v < 95).sort((a, b) => a[1] - b[1]);
+
+            if (weakList.length > 0) {
+                weakList.forEach(([key, score]) => {
+                    const guidance = ACTION_GUIDANCE[key] || "Review indicator with a qualified agricultural specialist.";
+                    recList.innerHTML += `
+                        <li class="flex items-start gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                            <span class="text-amber-500 font-bold">•</span>
+                            <div>
+                                <strong class="text-slate-900 uppercase font-bold">${key}: (${score}/100) — </strong> 
+                                <span>${guidance}</span>
+                            </div>
+                        </li>
+                    `;
+                });
+            } else {
+                recList.innerHTML = `<li class="text-emerald-700 font-bold">All indicators achieved optimal ratings (>95/100).</li>`;
+            }
+
+            renderCharts(indices);
+        }
+
+        function renderCharts(indices) {
+            const labels = Object.keys(indices);
+            const data = Object.values(indices);
+
+            if (barChartInst) barChartInst.destroy();
+            if (radarChartInst) radarChartInst.destroy();
+
+            // Bar Chart
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            barChartInst = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Dimension Index',
+                        data: data,
+                        backgroundColor: '#10b981',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 1 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Radar Chart
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            radarChartInst = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sustainability Profile',
+                        data: data,
+                        backgroundColor: 'rgba(16, 185, 129, 0.25)',
+                        borderColor: '#059669',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#047857'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { min: 0, max: 1 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function exportCSVResults() {
+            const rows = [
+                ["Category", "Name", "Score/Value", "Rating"],
+                ...Object.entries(indices).map(([name, val]) => ["Dimension", name, val.toFixed(4), calculateRating(val)]),
+                ["Overall", "Overall Sustainability Index", overall.toFixed(4), calculateRating(overall)]
+            ];
+
+            let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Sustainable_Agriculture_Assessment_Results.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function loadScenario(type) {
+            if (type === 'optimal') {
+                document.getElementById('input_ece').value = "2";
+                document.getElementById('input_soildepth').value = "150";
+                document.getElementById('input_texture').value = "Loam";
+                document.getElementById('input_caco3').value = "1";
+                document.getElementById('input_ph').value = "7.0";
+                document.getElementById('input_waterquality').value = "0.8";
+                document.getElementById('input_wateravailability').value = "Surface water available";
+            } else if (type === 'saline') {
+                document.getElementById('input_ece').value = "25";
+                document.getElementById('input_soildepth').value = "40";
+                document.getElementById('input_texture').value = "Clay";
+                document.getElementById('input_waterquality').value = "4.5";
+                document.getElementById('input_wateravailability').value = "Limited groundwater availability";
+            }
+            switchTab('assessment');
+        }
+
+        function resetAssessmentForm() {
+            document.getElementById('assessmentForm').reset();
+            calculateScores();
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            calculateScores();
+        };
+    </script>
+</body>
+</html>
