@@ -1,0 +1,33 @@
+graph TD
+    %% Main Header
+    Main["🌱 الزراعة المستدامة في الأراضي الصحراوية"]
+
+    %% Primary Pillars / SDGs
+    Main --> SDG2["🌾 SDG 2: القضاء على الجوع"]
+    Main --> SDG6["💧 SDG 6: المياه النظيفة والنظافة الصحية"]
+    Main --> SDG7["☀️ SDG 7: طاقة نظيفة وبأسعار معقولة"]
+    Main --> SDG13["🌍 SDG 13: العمل المناخي"]
+
+    %% Sub-details for Primary
+    SDG2 --- F1["• تحقيق الأمن الغذائي المحلي<br>• تعزيز الإنتاجية الزراعية<br>• محاصيل مقاومة للجفاف والملوحة"]
+    SDG6 --- F2["• تحسين كفاءة استخدام المياه<br>• الري بالتنقيط والتقنيات الذكية<br>• إدارة المياه الجوفية والتحلية"]
+    SDG7 --- F3["• تشغيل مضخات الري بالطاقة الشمسية<br>• تقليل البصمة الكربونية للإنتاج"]
+    SDG13 --- F4["• بناء التكيف والصمود المناخي<br>• تقليل انبعاثات الغازات الدفيئة"]
+
+    %% Convergence to Integrated Goal
+    F1 & F2 & F3 & F4 --> Core["⚙️ التكلفة والتكنولوجيا والسياسات المبتكرة"]
+
+    %% Outcome Goal
+    Core --> SDG15["🏞️ SDG 15: الحياة في البر"]
+
+    %% Final Impacts
+    SDG15 --- F5["• مكافحة التصحر وزحف الرمال<br>• إستصلاح الأراضي وتجديد التربة<br>• الحفاظ على التنوع البيولوجي الصحراوي"]
+
+    %% Styling
+    style Main fill:#1E3A8A,stroke:#1E3A8A,color:#fff,stroke-width:2px
+    style SDG2 fill:#D97706,stroke:#D97706,color:#fff
+    style SDG6 fill:#0284C7,stroke:#0284C7,color:#fff
+    style SDG7 fill:#EAB308,stroke:#EAB308,color:#333
+    style SDG13 fill:#15803D,stroke:#15803D,color:#fff
+    style Core fill:#475569,stroke:#475569,color:#fff
+    style SDG15 fill:#166534,stroke:#166534,color:#fff
